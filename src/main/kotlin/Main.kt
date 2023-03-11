@@ -1,8 +1,11 @@
 package app
 
-import java.io.Console
+import app.checkerComponent.Command
+import utils.ConsoleColors
+import utils.printlnc
 
 fun main() {
+    Database()
     while (true) {
         readLine().let {
             if (it != null) {

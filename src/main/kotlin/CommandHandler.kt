@@ -1,5 +1,7 @@
 package app
 
+import utils.ConsoleColors
+
 object CommandHandler {
     fun help() {
         println("""
@@ -17,8 +19,8 @@ object CommandHandler {
             ${ConsoleColors.ANSI_BLUE}add_if_min {element}${ConsoleColors.ANSI_RESET} - добавляет новый элемент в коллекцию, если его значение меньше, чем у наименьшего элемента этой коллекции
             ${ConsoleColors.ANSI_BLUE}remove_greater {element}${ConsoleColors.ANSI_RESET} - удаляет из коллекции все элементы, превышающие заданный
             ${ConsoleColors.ANSI_BLUE}group_counting_by_price${ConsoleColors.ANSI_RESET} - сгруппировать элементы коллекции по значению поля price, вывести количество элементов в каждой группе
-            ${ConsoleColors.ANSI_BLUE}filter_starts_with_part_number partNumber${ConsoleColors.ANSI_RESET} - вывести элементы, значение поля partNumber которых начинается с заданной подстроки
-            ${ConsoleColors.ANSI_BLUE}filter_greater_than_price price${ConsoleColors.ANSI_RESET} - вывести элементы, значение поля price которых больше заданного
+            ${ConsoleColors.ANSI_BLUE}filter_starts_with_part_number {partNumber}${ConsoleColors.ANSI_RESET} - вывести элементы, значение поля "partNumber" которых начинается с заданной подстроки
+            ${ConsoleColors.ANSI_BLUE}filter_greater_than_price {price}${ConsoleColors.ANSI_RESET} - вывести элементы, значение поля price которых больше заданного
         """.trimIndent())
     }
 }
