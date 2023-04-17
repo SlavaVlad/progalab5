@@ -7,22 +7,22 @@ import java.util.*
 
 @Serializable
 class Product(
-    private val id //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
-    : Long? = null,
-    private val name //Поле не может быть null, Строка не может быть пустой
+    val id //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
+    : Long? = System.currentTimeMillis(),
+    val name //Поле не может быть null, Строка не может быть пустой
     : String? = null,
-    private val coordinates //Поле не может быть null
+    val coordinates //Поле не может быть null
     : Coordinates? = null,
-    private val price //Поле не может быть null, Значение поля должно быть больше 0
+    val price //Поле не может быть null, Значение поля должно быть больше 0
     : Long? = null,
     @Contextual
-    private val creationDate //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+    val creationDate //Поле не может быть null, Значение этого поля должно генерироваться автоматически
     : Date = Date.from(Instant.now()),
-    private val partNumber //Длина строки должна быть не меньше 13, Значение этого поля должно быть уникальным, Поле не может быть null
+    val partNumber //Длина строки должна быть не меньше 13, Значение этого поля должно быть уникальным, Поле не может быть null
     : String? = null,
-    private val unitOfMeasure //Поле не может быть null
+    val unitOfMeasure //Поле не может быть null
     : UnitOfMeasure? = null,
-    private val owner //Поле может быть null
+    val owner //Поле может быть null
     : Person? = null,
 ) : Comparable<Product> {
 
@@ -36,11 +36,11 @@ class Product(
     }
 
     override fun compareTo(other: Product): Int {
-        return this.id!!.compareTo(other.id!!)
+        return this.price!!.compareTo(other.price!!)
     }
 
-    fun getId(): Long? {
-        return id
+    override fun toString(): String {
+        return "Product(id=$id, name=$name, coordinates=$coordinates, price=$price, creationDate=$creationDate, partNumber=$partNumber, unitOfMeasure=$unitOfMeasure, owner=$owner)"
     }
 
 }

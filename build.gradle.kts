@@ -26,8 +26,11 @@ buildscript {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0-RC")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation ("com.charleskorn.kaml:kaml:0.51.0")
+    implementation ("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("javax.servlet:javax.servlet-api:4.0.1")
 }
 
 tasks.test {

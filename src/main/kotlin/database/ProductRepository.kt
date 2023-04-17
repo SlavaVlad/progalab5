@@ -44,6 +44,8 @@ package app.database//package app.database
 import app.database.loader.CollectionLoader
 import app.database.product.*
 import java.util.*
+import java.util.function.Predicate
+import kotlin.time.measureTime
 
 class ProductRepository() {
     private val products = TreeSet<Product>()
@@ -60,16 +62,17 @@ class ProductRepository() {
         products.clear()
     }
 
-    fun saveToFile(filename: String) {
-        CollectionLoader().save(getProducts().toList(), filename)
+    fun saveToFile(filename: String): Boolean {
+        CollectionLoader.save(getProducts().toList(), filename)
+        return true
     }
 
     fun loadCollectionFromFile(filename: String): List<Product> {
-        return CollectionLoader().load(filename)
+        return CollectionLoader.load(filename)
     }
 
     fun removeProductById(id: Long): Boolean {
-        val product = products.firstOrNull { it.getId() == id }
+        val product = products.firstOrNull { it.id == id }
         return if (product != null) {
             products.remove(product)
             true
@@ -78,21 +81,35 @@ class ProductRepository() {
         }
     }
 
-    private fun parseCoordinates(xStr: String, yStr: String): Coordinates {
-        val x = xStr.toLongOrNull()
-        val y = yStr.toIntOrNull()
-        return if (x != null && y != null) {
-            Coordinates(x, y)
-        } else {
-            throw IllegalArgumentException("Invalid coordinates: ($xStr, $yStr)")
-        }
+    fun getSize(): Int {
+        return products.size
     }
 
-    private fun parseUnitOfMeasure(unitOfMeasureStr: String): UnitOfMeasure {
-        return try {
-            UnitOfMeasure.valueOf(unitOfMeasureStr)
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid unit of measure: $unitOfMeasureStr")
-        }
+    fun compareMax(product: Product): Boolean {
+        return products.comparator().compare(product, products.max()) > 0
     }
+    fun compareMin(product: Product): Boolean {
+        return products.comparator().compare(product, products.max()) < 0
+    }
+    fun removeAllGreaterThan(product: Product): Int {
+        var count = 0
+        while (products.comparator().compare(product, products.max()) > 0) {
+            products.remove(products.max())
+            count++
+        }
+        return count
+    }
+
+    fun filter(predicate: (Product) -> Boolean) = products.filter { predicate(it) }
+
+}
+
+fun <T> Iterable<T>.averageBy(selector: (T) -> Number): Double {
+    var sum = 0.0
+    var count = 0
+    for (element in this) {
+        sum += selector(element).toDouble()
+        count++
+    }
+    return if (count > 0) sum / count else 0.0
 }

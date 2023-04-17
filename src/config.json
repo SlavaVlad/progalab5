@@ -1,0 +1,12 @@
+[
+{"commandName":"help","arguments":null,"description":"Default manual for all commands","argumentsDescription":null},
+{"commandName":"make_config","arguments":[".*"],"description":"Command \"make_config\" with arguments:\n[.*]","argumentsDescription":null},
+{"commandName":"info","arguments":null,"description":"Command that shows information about collection","argumentsDescription":null},
+{"commandName":"show","arguments":null,"description":"Command that shows all elements of collection","argumentsDescription":null},
+{"commandName":"add","arguments":null,"description":"Command that adds new element to collection","argumentsDescription":null},
+{"commandName":"update","arguments":["[+-]?[0-9]*"],"description":"Command that updates element with specified id","argumentsDescription":null},
+{"commandName":"remove_by_id","arguments":["[+-]?[0-9]*"],"description":"Command that removes element with specified id","argumentsDescription":null},
+{"commandName":"clear","arguments":null,"description":"Command that clears collection","argumentsDescription":null},
+{"commandName":"save","arguments":[".*"],"description":"Command that saves collection to file","argumentsDescription":null},
+{"commandName":"execute_script","arguments":[".*"],"description":"Command that executes script from file with command sequence","argumentsDescription":null}
+]

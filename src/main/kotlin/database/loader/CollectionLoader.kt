@@ -8,7 +8,7 @@ import java.io.File
 import java.io.PrintWriter
 import java.util.*
 
-class CollectionLoader: CollectionSaveLoader {
+object CollectionLoader: CollectionSaveLoader {
     override fun load(filename: String): List<Product> {
         val yaml = Yaml.default
         val text = File(filename).readText()

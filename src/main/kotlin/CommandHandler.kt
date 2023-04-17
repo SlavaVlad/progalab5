@@ -1,26 +1,83 @@
 package app
 
+import app.app.database.ProductCollectionInfo
+import app.checkerComponent.Command
+import app.data.CommandInfo
+import app.data.ExecutionResult
+import app.database.ProductFabric
+import app.database.ProductRepository
+import app.database.product.Product
 import utils.ConsoleColors
+import utils.readlinesFile
+import java.io.File
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
-object CommandHandler {
-    fun help() {
-        println("""
-            ${ConsoleColors.ANSI_CYAN}команда {аргумент} - инфо${ConsoleColors.ANSI_RESET}
-            ${ConsoleColors.ANSI_BLUE}info${ConsoleColors.ANSI_RESET} - выводит информацию о коллекции
-            ${ConsoleColors.ANSI_BLUE}show${ConsoleColors.ANSI_RESET} - вывод всех элементов коллекции в консоль
-            ${ConsoleColors.ANSI_BLUE}add {element}${ConsoleColors.ANSI_RESET} - добавляет элемент в коллекцию
-            ${ConsoleColors.ANSI_BLUE}update {id} {element}${ConsoleColors.ANSI_RESET} - обновляет значение элемента с указанным id
-            ${ConsoleColors.ANSI_BLUE}remove_by_id {id}${ConsoleColors.ANSI_RESET} - удаляет элемент с указанным id
-            ${ConsoleColors.ANSI_BLUE}clear${ConsoleColors.ANSI_RESET} - очищает коллекцию
-            ${ConsoleColors.ANSI_BLUE}save${ConsoleColors.ANSI_RESET} - сохраняет коллекцию в файл
-            ${ConsoleColors.ANSI_BLUE}execute_script {file_name}${ConsoleColors.ANSI_RESET} - выполняет последовательность команд из файла с указанным именем
-            ${ConsoleColors.ANSI_BLUE}exit${ConsoleColors.ANSI_RESET} - заканчивает выполнение программы ${ConsoleColors.ANSI_RED}БЕЗ СОХРАНЕНИЯ${ConsoleColors.ANSI_RESET}
-            ${ConsoleColors.ANSI_BLUE}add_if_max {element}${ConsoleColors.ANSI_RESET} - добавляет новый элемент в коллекцию, если его значение превышает значение наибольшего элемента этой коллекции
-            ${ConsoleColors.ANSI_BLUE}add_if_min {element}${ConsoleColors.ANSI_RESET} - добавляет новый элемент в коллекцию, если его значение меньше, чем у наименьшего элемента этой коллекции
-            ${ConsoleColors.ANSI_BLUE}remove_greater {element}${ConsoleColors.ANSI_RESET} - удаляет из коллекции все элементы, превышающие заданный
-            ${ConsoleColors.ANSI_BLUE}group_counting_by_price${ConsoleColors.ANSI_RESET} - сгруппировать элементы коллекции по значению поля price, вывести количество элементов в каждой группе
-            ${ConsoleColors.ANSI_BLUE}filter_starts_with_part_number {partNumber}${ConsoleColors.ANSI_RESET} - вывести элементы, значение поля "partNumber" которых начинается с заданной подстроки
-            ${ConsoleColors.ANSI_BLUE}filter_greater_than_price {price}${ConsoleColors.ANSI_RESET} - вывести элементы, значение поля price которых больше заданного
-        """.trimIndent())
+import java.io.OutputStream
+
+class CommandHandler(val repo: ProductRepository) {
+
+    fun groupByPrice(
+        onCompleted: (ExecutionResult) -> Unit = {
+            it.error?.let { println(it) }
+            it.message?.let { println(it) }
+        }
+    ) {
+        var result = ""
+        val groups = repo.getProducts().groupBy { it.price }
+        for ((price, products) in groups) {
+            result += ("Продукты с ценой $price: ${products.joinToString { it.id.toString() }}")
+        }
+
+        onCompleted(ExecutionResult(message = result))
     }
+
+    fun filterStartsWithPartNumber(
+        substring: String, onCompleted: (ExecutionResult) -> Unit = {
+            it.error?.let { println(it) }
+            it.message?.let { println(it) }
+        }
+    ) {
+        val list = repo.filter { it.partNumber?.startsWith(substring) ?: false }
+        var result = ""
+        list.forEach {
+            result += it.toString()
+        }
+
+        onCompleted(ExecutionResult(message = result))
+    }
+
+    fun filterGreaterThanPrice(
+        price: Double, onCompleted: (ExecutionResult) -> Unit = {
+            it.error?.let { println(it) }
+            it.message?.let { println(it) }
+        }
+    ) {
+        val list = repo.filter { ((it.price ?: 0) > price) }
+        var result = ""
+        list.forEach {
+            result += it.toString()
+        }
+
+        onCompleted(ExecutionResult(message = result))
+    }
+
+//    fun makeConfig(
+//        filename: String, onCompleted: (ExecutionResult) -> Unit = {
+//            it.error?.let { println(it) }
+//            it.message?.let { println(it) }
+//        }
+//    ) {
+//        val mapper = ObjectMapper().registerKotlinModule()
+//        val file = File("E:\\Projects\\Projects\\progalab5\\src\\$filename").apply {
+//            createNewFile()
+//        }
+//        val classString = mapper.writeValueAsString(CommandInfo.commands)
+//        file.printWriter().apply {
+//            println(classString)
+//            this.close()
+//        }
+//        onCompleted(ExecutionResult(message = "result string = \"$classString\""))
+//   }
+
 }

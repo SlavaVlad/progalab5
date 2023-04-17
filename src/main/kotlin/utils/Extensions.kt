@@ -1,5 +1,6 @@
 package utils
 
+import java.io.File
 import java.io.InputStream
 
 /**
@@ -41,4 +42,34 @@ object ConsoleColors {
     val ANSI_PURPLE_BACKGROUND = "\u001B[45m"
     val ANSI_CYAN_BACKGROUND = "\u001B[46m"
     val ANSI_WHITE_BACKGROUND = "\u001B[47m"
+}
+
+fun readlinesFile(path: String): List<String> {
+    val file = File(path)
+    if (!file.isFile) {
+        throw IllegalArgumentException("Specified path does not point to a file: $path")
+    }
+
+    val lines = mutableListOf<String>()
+    file.forEachLine {
+        lines.add(it)
+    }
+
+    return lines
+}
+
+/**
+ * По умолчанию валидатор проверяет строку на пустоту
+ * */
+fun requestUserInput(
+    prompt: String, validator: (String) -> Boolean = {
+        it.isNotBlank()
+    }
+): String {
+    var input: String
+    do {
+        print(prompt)
+        input = readLine()!!
+    } while (!validator(input))
+    return input
 }
