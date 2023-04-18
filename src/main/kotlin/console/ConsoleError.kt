@@ -1,4 +1,4 @@
-package app.data
+package app.console
 
 object ConsoleError {
     val too_many_arguments = "error: too many arguments for command %s"

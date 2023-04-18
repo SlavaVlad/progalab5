@@ -73,3 +73,32 @@ fun requestUserInput(
     } while (!validator(input))
     return input
 }
+
+fun makeInput(input: String): Array<String> {
+    //val regex = """(?<=\s|^)"([^"]*)"(?=\s|$)|(\S+)""".toRegex()
+    val regex = """(?<!\\)".*?(?<!\\)"|\S+""".toRegex()
+    return regex.findAll(input)
+        .map { it.groupValues[0].removeSurrounding("\"") }
+        .toList()
+        .toTypedArray()
+}
+
+fun <T> MutableMap<T, Int>.addIncrement(key: T) {
+    if (this.containsKey(key)) {
+        this[key] = this[key]!! + 1
+    } else {
+        this[key] = 1
+    }
+}
+
+fun <T> MutableMap<T, Int>.addDecrement(key: T) {
+    if (this.containsKey(key)) {
+        this[key] = this[key]!! - 1
+    } else {
+        this[key] = 0
+    }
+}
+
+fun <V, T> HashMap<V, T>.plusAssign(pair: Pair<V, T>) {
+    this[pair.first] = pair.second
+}

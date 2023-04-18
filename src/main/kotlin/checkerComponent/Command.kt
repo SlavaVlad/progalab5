@@ -1,22 +1,24 @@
 package app.checkerComponent
 
 import app.data.CommandInfo
-import app.data.ConsoleError
+import app.console.ConsoleError
 import app.database.ProductRepository
 import utils.takeAfter
+
+class CommandCompilationException(message: String) : Exception(message)
 
 class Command(
     var name: String? = null,
     var args: Array<String>? = null,
 ) {
     companion object {
-        fun make(input: Array<String>): Command? {
+        fun make(input: Array<String>, onError: (String) -> Unit = { app.error(it) }): Command? {
             val command: String
             try {
                 command = input[0]
                 if (CommandInfo(ProductRepository()).findReferenceOrNull(command) == null) {
                     if (command.isBlank()) return null
-                    app.error("command not exists")
+                    onError("command not exists")
                     return null
                 }
             } catch (e: ArrayIndexOutOfBoundsException) {
@@ -29,21 +31,21 @@ class Command(
             val argsCount = ref.arguments?.size
             if (argsCount != args.size) {
                 if (args.size > (ref.arguments?.size ?: 0)) {
-                    app.error(ConsoleError.too_many_arguments.format(command))
+                    onError(ConsoleError.too_many_arguments.format(command))
                     return null
                 } else if (args.size < (ref.arguments?.size ?: 0)) {
-                    app.error(ConsoleError.not_enough_arguments.format(command))
+                    onError(ConsoleError.not_enough_arguments.format(command))
                     return null
                 }
             }
             args.forEachIndexed { index, arg ->
                 if (ref.arguments?.toTypedArray()?.get(index) != null) {
-                    if (!ref.arguments.toTypedArray()[index].matcher(arg).matches()) {
-                        app.error("argument $index has incorrect type")
+                    if (!ref.arguments.toTypedArray()[index].type.pattern.matcher(arg).matches()) {
+                        onError("argument $index has incorrect type")
                         return null
                     }
                 } else {
-                    app.error(ConsoleError.too_many_arguments.format(command))
+                    onError(ConsoleError.too_many_arguments.format(command))
                     return null
                 }
             }

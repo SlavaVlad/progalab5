@@ -47,8 +47,7 @@ import java.util.*
 import java.util.function.Predicate
 import kotlin.time.measureTime
 
-class ProductRepository() {
-    private val products = TreeSet<Product>()
+data class ProductRepository(private val products: TreeSet<Product> = TreeSet<Product>()) {
 
     fun getProducts(): Set<Product> {
         return products
