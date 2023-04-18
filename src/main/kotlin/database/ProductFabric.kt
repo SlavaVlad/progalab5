@@ -1,11 +1,12 @@
 package app.database
 
 import app.database.product.*
+import utils.InputInterruptException
 import utils.requestUserInput
 
 object ProductFabric {
     private fun constructCoordinatesFromConsole(): Coordinates {
-        println("Enter product coordinates:")
+
         val x = requestUserInput("Enter x coordinate:") {
             it.toLongOrNull() != null
         }.toLong()
@@ -18,68 +19,77 @@ object ProductFabric {
     }
 
     private fun constructUnitOfMeasureFromConsole(): UnitOfMeasure {
-        println("Enter unit of measure (cm, l, g, kg):")
-        val unitOfMeasure = readLine() ?: throw IllegalArgumentException("unit of measure cannot be null or empty")
+        val unitOfMeasure = requestUserInput("Enter unit of measure (cm, l, g, kg):") {
+            it == "cm" || it == "l" || it == "g" || it == "kg"
+        }
 
         return when (unitOfMeasure) {
             "kg" -> UnitOfMeasure.KILOGRAMS
             "g" -> UnitOfMeasure.GRAMS
             "l" -> UnitOfMeasure.LITERS
             "cm" -> UnitOfMeasure.CENTIMETERS
-            else -> { throw IllegalArgumentException("unexpected unit of measure") }
+            else -> {
+                throw IllegalArgumentException("unexpected unit of measure")
+            }
         }
     }
 
     private fun constructPersonFromConsole(): Person {
-        println("Enter owner's name:")
-        val name = readLine() ?: throw IllegalArgumentException("owner's name cannot be null or empty")
+        val name = requestUserInput("Enter owner's name:")
 
-        println("Enter owner's height:")
-        val height = readLine()?.toLongOrNull() ?: throw IllegalArgumentException("owner's height cannot be null or empty")
+        val height = requestUserInput("Enter owner's height:") { it.toLongOrNull() != null }.toLong()
 
-        println("Enter owner's weight:")
-        val weight = readLine()?.toFloatOrNull() ?: throw IllegalArgumentException("owner's weight cannot be null or empty")
+        val weight = requestUserInput("Enter owner's weight:") { it.toFloatOrNull() != null }.toFloat()
 
-        println("Enter owner's location:")
+
         val location = constructLocationFromConsole()
 
         return Person(name = name, height = height, weight = weight, location = location)
     }
 
     private fun constructLocationFromConsole(): Location {
-        println("Enter location x:")
-        val x = readLine()?.toIntOrNull() ?: throw IllegalArgumentException("location x cannot be null or empty")
+        val x = requestUserInput("Enter location x:") { it.toIntOrNull() != null }.toInt()
 
-        println("Enter location y:")
-        val y = readLine()?.toLongOrNull() ?: throw IllegalArgumentException("location y cannot be null or empty")
+        val y = requestUserInput("Enter location y:") { it.toLongOrNull() != null }.toLong()
 
-        println("Enter location z:")
-        val z = readLine()?.toIntOrNull() ?: throw IllegalArgumentException("location z cannot be null or empty")
+        val z = requestUserInput("Enter location z:") { it.toIntOrNull() != null }.toInt()
 
         return Location(x, y, z)
     }
 
-    fun constructProductFromConsole(): Product {
 
-        println("Enter product name:")
-        val name = readLine() ?: throw IllegalArgumentException("product name cannot be null or empty")
+    fun constructProductFromConsole(): Product? {
+        try {
 
-        println("Enter product coordinates:")
-        val coordinates = constructCoordinatesFromConsole()
 
-        println("Enter product price:")
-        val price = readLine()?.toLongOrNull() ?: throw IllegalArgumentException("product price cannot be null or empty")
+            val name = requestUserInput("Enter product name:")
 
-        println("Enter product part number:")
-        val partNumber = readLine() ?: throw IllegalArgumentException("product part number cannot be null or empty")
 
-        println("Enter product unit of measure:")
-        val unitOfMeasure = constructUnitOfMeasureFromConsole()
+            val coordinates = constructCoordinatesFromConsole()
 
-        println("Enter product owner:")
-        val owner = constructPersonFromConsole()
 
-        return Product(name = name, coordinates = coordinates, price = price, partNumber = partNumber, unitOfMeasure = unitOfMeasure, owner = owner)
+            val price = requestUserInput("Enter product price:") { it.toLongOrNull() != null }.toLong()
+
+
+            val partNumber = requestUserInput("Enter product part number:")
+
+
+            val unitOfMeasure = constructUnitOfMeasureFromConsole()
+
+
+            val owner = constructPersonFromConsole()
+
+            return Product(
+                name = name,
+                coordinates = coordinates,
+                price = price,
+                partNumber = partNumber,
+                unitOfMeasure = unitOfMeasure,
+                owner = owner
+            )
+        } catch (e: InputInterruptException) {
+            return null
+        }
     }
 
     fun constructProductFromConsoleWithId(id: Long): Product {
@@ -87,19 +97,27 @@ object ProductFabric {
 
         val coordinates = constructCoordinatesFromConsole()
 
-        println("Enter product price:")
-        val price = readLine()?.toLongOrNull() ?: throw IllegalArgumentException("product price cannot be null or empty")
 
-        println("Enter product part number:")
-        val partNumber = readLine() ?: throw IllegalArgumentException("product part number cannot be null or empty")
+        val price = requestUserInput("Enter product price:") { it.toLongOrNull() != null }.toLong()
 
-        println("Enter product unit of measure:")
+
+        val partNumber = requestUserInput("Enter product part number (len >= 13):") { it.length >= 13 }
+
+
         val unitOfMeasure = constructUnitOfMeasureFromConsole()
 
-        println("Enter product owner:")
+
         val owner = constructPersonFromConsole()
 
-        return Product(id = id, name = name, coordinates = coordinates, price = price, partNumber = partNumber, unitOfMeasure = unitOfMeasure, owner = owner)
+        return Product(
+            id = id,
+            name = name,
+            coordinates = coordinates,
+            price = price,
+            partNumber = partNumber,
+            unitOfMeasure = unitOfMeasure,
+            owner = owner
+        )
     }
 
 }

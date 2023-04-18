@@ -27,7 +27,7 @@ class CommandInfo(private val repo: ProductRepository) {
         },
         "add" to CommandReference(description = "Command that adds new element to collection") { args, onCompleted ->
             try {
-                repo.addProduct(ProductFabric.constructProductFromConsole())
+                repo.addProduct(ProductFabric.constructProductFromConsole()!!)
             } catch (e: Exception) {
                 onCompleted(ExecutionResult(error = e.message))
             }
@@ -98,20 +98,33 @@ class CommandInfo(private val repo: ProductRepository) {
         "add_if_max" to CommandReference(
             description = "Command that adds new element to collection if it's price is greater than max price in collection"
         ) { args, onCompleted ->
-            val product1 = ProductFabric.constructProductFromConsole()
-            if (repo.compareMax(product1)) {
-                repo.addProduct(product1)
+            val product1 = ProductFabric.constructProductFromConsole()?.let {
+                if (repo.compareMax(it)) {
+                    repo.addProduct(it)
+                }
+            }.run {
+                if (this == null) {
+                    onCompleted(ExecutionResult(error = "Error while adding element"))
+                } else {
+                    onCompleted(ExecutionResult(message = "Element added"))
+                }
             }
             onCompleted(ExecutionResult())
         },
         "add_if_min" to CommandReference(
             description = "Command that adds new element to collection if it's price is less than max price in collection"
         ) { args, onCompleted ->
-            val product1 = ProductFabric.constructProductFromConsole()
-            if (repo.compareMin(product1)) {
-                repo.addProduct(product1)
+            val product1 = ProductFabric.constructProductFromConsole()?.let {
+                if (repo.compareMin(it)) {
+                    repo.addProduct(it)
+                }
+            }.run {
+                if (this == null) {
+                    onCompleted(ExecutionResult(error = "Error while adding element"))
+                } else {
+                    onCompleted(ExecutionResult(message = "Element added"))
+                }
             }
-            onCompleted(ExecutionResult())
         },
         "remove_greater" to CommandReference(
             description = "Command that removes all elements that are greater than specified"

@@ -2,6 +2,7 @@ package utils
 
 import java.io.File
 import java.io.InputStream
+import java.lang.Exception
 
 /**
  * @param index take elements after index
@@ -58,6 +59,8 @@ fun readlinesFile(path: String): List<String> {
     return lines
 }
 
+class InputInterruptException(message: String) : Exception(message)
+
 /**
  * По умолчанию валидатор проверяет строку на пустоту
  * */
@@ -70,6 +73,9 @@ fun requestUserInput(
     do {
         print(prompt)
         input = readLine()!!
+        if (input == "exit") {
+            throw InputInterruptException("User interrupted input")
+        }
     } while (!validator(input))
     return input
 }
