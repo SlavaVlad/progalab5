@@ -35,6 +35,7 @@ object ConsoleColors {
     val ANSI_PURPLE = "\u001B[35m"
     val ANSI_CYAN = "\u001B[36m"
     val ANSI_WHITE = "\u001B[37m"
+    val ANSI_LIGHT_GREEN = "\u001B[92m"
     val ANSI_BLACK_BACKGROUND = "\u001B[40m"
     val ANSI_RED_BACKGROUND = "\u001B[41m"
     val ANSI_GREEN_BACKGROUND = "\u001B[42m"

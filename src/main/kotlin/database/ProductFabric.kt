@@ -29,7 +29,7 @@ object ProductFabric {
             "l" -> UnitOfMeasure.LITERS
             "cm" -> UnitOfMeasure.CENTIMETERS
             else -> {
-                throw IllegalArgumentException("unexpected unit of measure")
+                throw IllegalArgumentException("unexpected unit of measure") // should never happen, but compiler doesn't know that
             }
         }
     }
@@ -61,21 +61,15 @@ object ProductFabric {
     fun constructProductFromConsole(): Product? {
         try {
 
-
             val name = requestUserInput("Enter product name:")
-
 
             val coordinates = constructCoordinatesFromConsole()
 
-
             val price = requestUserInput("Enter product price:") { it.toLongOrNull() != null }.toLong()
-
 
             val partNumber = requestUserInput("Enter product part number:")
 
-
             val unitOfMeasure = constructUnitOfMeasureFromConsole()
-
 
             val owner = constructPersonFromConsole()
 

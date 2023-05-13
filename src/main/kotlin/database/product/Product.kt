@@ -42,5 +42,9 @@ class Product(
     override fun toString(): String {
         return "Product(id=$id, name=$name, coordinates=$coordinates, price=$price, creationDate=$creationDate, partNumber=$partNumber, unitOfMeasure=$unitOfMeasure, owner=$owner)"
     }
+    
+    fun getWriterString(): String {
+        return ("\n${id},${name},${coordinates?.x},${coordinates?.y},${price},${partNumber},${unitOfMeasure},${owner?.name},${owner?.height},${owner?.weight},${owner?.location?.x},${owner?.location?.y},${owner?.location?.z}")
+    }
 
 }

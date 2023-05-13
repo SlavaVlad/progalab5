@@ -4,20 +4,24 @@ import app.checkerComponent.Command
 import app.checkerComponent.printToConsole
 import app.data.CommandInfo
 import app.database.ProductRepository
+import app.database.loader.CollectionLoader
+import app.database.product.Product
+import kotlinx.serialization.Contextual
 import utils.ConsoleColors
 import utils.makeInput
 import utils.printlnc
+import java.util.*
 
-val repo = ProductRepository()
-val ch = CommandHandler(repo)
+var repo: ProductRepository? = null
 
-fun main() {
+fun main(args: Array<String>) {
+    repo = ProductRepository((CollectionLoader.load(args[0])?: TreeSet<Product>()))
     while (true) {
         readlnOrNull().let {
             if (it != null) {
                 try {
                     handleCommand(Command
-                        .make(makeInput(it))!!, repo)
+                        .make(makeInput(it))!!, repo!!)
                 } catch (e: Exception) {
                     error(e.message ?: "Error while compiling command")
                 }

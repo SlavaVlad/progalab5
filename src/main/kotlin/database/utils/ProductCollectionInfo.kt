@@ -1,4 +1,4 @@
-package app.app.database
+package app.database.utils
 
 import app.database.ProductRepository
 import app.database.averageBy

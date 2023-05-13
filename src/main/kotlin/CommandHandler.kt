@@ -1,6 +1,6 @@
 package app
 
-import app.app.database.ProductCollectionInfo
+import app.database.utils.ProductCollectionInfo
 import app.checkerComponent.Command
 import app.data.CommandInfo
 import app.data.ExecutionResult
@@ -15,6 +15,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
 import java.io.OutputStream
 
+@Deprecated("Use CommandInfo instead")
 class CommandHandler(val repo: ProductRepository) {
 
     fun groupByPrice(

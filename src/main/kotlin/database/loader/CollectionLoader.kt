@@ -1,24 +1,54 @@
 package app.database.loader
 
+import app.database.ProductRepository
 import app.database.product.*
-import com.charleskorn.kaml.Yaml
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import java.io.File
-import java.io.PrintWriter
+import java.io.*
 import java.util.*
+import kotlin.math.roundToLong
 
-object CollectionLoader: CollectionSaveLoader {
-    override fun load(filename: String): List<Product> {
-        val yaml = Yaml.default
-        val text = File(filename).readText()
-        return yaml.decodeFromString(text)
+object CollectionLoader : CollectionSaveLoader {
+    override fun load(filepath: String): TreeSet<Product> {
+        val reader = FileInputStream(filepath).bufferedReader()
+        val header = reader.readLine()
+        return TreeSet(reader.lineSequence()
+            .filter { it.isNotBlank() }
+            .map {
+                val a = it.split(
+                    ',',
+                    ignoreCase = false
+                ).toMutableList()
+                a.forEachIndexed { i, s ->
+                    a[i] = s.filter { it != " ".toCharArray()[0] }
+                }
+                Product(
+                    id = a[0].toLong(),
+                    name = a[1],
+                    coordinates = Coordinates(a[2].toLong(), a[3].toInt()),
+                    price = a[4].toDouble().roundToLong(),
+                    partNumber = a[5],
+                    unitOfMeasure = UnitOfMeasure.valueOf(a[6]),
+                    owner = Person(
+                        name = a[7],
+                        height = a[8].toDouble().roundToLong(),
+                        weight = a[9].toFloat(),
+                        location = Location(
+                            a[10].toInt(),
+                            a[11].toLong(),
+                            a[12].toInt()
+                        )
+                    )
+                )
+            }.toList()
+        )
     }
 
-    override fun save(input: List<*>, filename: String) {
-        val yaml = Yaml.default
-        val text = yaml.encodeToString(input)
-        File(filename).writeText(text)
+    override fun save(input: List<Product>, filepath: String) {
+        val writer = FileWriter(filepath)
+        writer.write("id,name,coordinates_x,coordinates_y,price,partNumber,unitOfMeasure,owner_name,owner_height,owner_weight,owner_location_x,owner_location_y,owner_location_z")
+        input.forEach{
+                writer.write(it.getWriterString())
+            }
+        writer.close()
     }
 
 }

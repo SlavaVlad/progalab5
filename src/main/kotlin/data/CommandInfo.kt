@@ -1,6 +1,6 @@
 package app.data
 
-import app.app.database.ProductCollectionInfo
+import app.database.utils.ProductCollectionInfo
 import app.checkerComponent.Argument
 import app.checkerComponent.CommandReference
 import app.checkerComponent.ScriptExecutor
@@ -12,6 +12,7 @@ import app.handleCommand
 import utils.ConsoleColors
 import utils.makeInput
 import utils.readlinesFile
+import java.io.Console
 
 class CommandInfo(private val repo: ProductRepository) {
     var commands = hashMapOf<String, CommandReference>(
@@ -203,9 +204,9 @@ class CommandInfo(private val repo: ProductRepository) {
                 }
                 // list of all commands in format: commandName - description and list of arguments from argumentsString
                 msg += if ((command.arguments?.size ?: 0) == 0) {
-                    "${ConsoleColors.ANSI_BLUE}$name${ConsoleColors.ANSI_RESET}() - ${command.description}\n"
+                    "${ConsoleColors.ANSI_BLUE}$name${ConsoleColors.ANSI_RESET}() - ${ConsoleColors.ANSI_LIGHT_GREEN}${command.description}${ConsoleColors.ANSI_RESET}\n"
                 } else {
-                    "${ConsoleColors.ANSI_BLUE}$name${ConsoleColors.ANSI_RESET}($argumentsString) - ${command.description}\n"
+                    "${ConsoleColors.ANSI_BLUE}$name${ConsoleColors.ANSI_RESET}($argumentsString) - ${ConsoleColors.ANSI_LIGHT_GREEN}${command.description}${ConsoleColors.ANSI_RESET}\n"
                 }
             }
 

@@ -1,53 +1,23 @@
 package app.database//package app.database
-//
-//import app.database.product.*
-//import java.io.File
-//import java.io.FileInputStream
-//import java.io.InputStream
-//import java.io.InputStreamReader
-//import java.net.URL
-//import java.util.*
-//import kotlin.math.roundToLong
-//
-//class CollectionLoader {
-//    fun load(filename: String): TreeSet<Product> {
-//        val reader = FileInputStream(filename).bufferedReader()
-//        val header = reader.readLine()
-//        return TreeSet(reader.lineSequence()
-//            .filter { it.isNotBlank() }
-//            .map {
-//                val a = it.split(
-//                    ',',
-//                    ignoreCase = false
-//                )
-//                Product(
-//                    id = a[0].toLong(),
-//                    name = a[1],
-//                    coordinates = Coordinates(a[2].toLong(), a[3].toInt()),
-//                    price = a[4].toDouble().roundToLong(),
-//                    partNumber = a[5],
-//                    unitOfMeasure = UnitOfMeasure.valueOf(a[6]),
-//                    owner = Person(
-//                        name = a[7],
-//                        height = a[8].toDouble().roundToLong(),
-//                        weight = a[9].toFloat(),
-//                        location = Location(
-//                            a[10].toInt(),
-//                            a[11].toLong(),
-//                            a[12].toInt()
-//                        )
-//                    )
-//                )
-//            }.toList())
-//    }
-//}
+
+import app.database.product.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.net.URL
+import java.util.*
+import kotlin.math.roundToLong
 import app.database.loader.CollectionLoader
 import app.database.product.*
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import java.util.*
 import java.util.function.Predicate
 import kotlin.time.measureTime
 
-data class ProductRepository(private val products: TreeSet<Product> = TreeSet<Product>()) {
+@Serializable
+data class ProductRepository(private val products: @Contextual TreeSet<Product> = TreeSet<Product>()) {
 
     fun getProducts(): Set<Product> {
         return products
@@ -62,12 +32,12 @@ data class ProductRepository(private val products: TreeSet<Product> = TreeSet<Pr
     }
 
     fun saveToFile(filename: String): Boolean {
-        CollectionLoader.save(getProducts().toList(), filename)
+        CollectionLoader.save(this.getProducts().toList(), filename)
         return true
     }
 
-    fun loadCollectionFromFile(filename: String): List<Product> {
-        return CollectionLoader.load(filename)
+    fun loadCollectionFromFile(filename: String): List<Product>? {
+        return CollectionLoader.load(filename).toList()
     }
 
     fun removeProductById(id: Long): Boolean {
