@@ -15,7 +15,7 @@ import utils.readlinesFile
 import java.io.Console
 
 class CommandInfo(private val repo: ProductRepository) {
-    var commands = hashMapOf<String, CommandReference>(
+    var commands = hashMapOf(
         "info" to CommandReference(description = "Command that shows information about collection") { args, onCompleted ->
             onCompleted(ExecutionResult(message = ProductCollectionInfo(repo).toString()))
         },
