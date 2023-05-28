@@ -13,18 +13,18 @@ import persistence.utils.ConsoleColors
 import persistence.utils.readlinesFile
 
 class CommandInfo(private val repo: ProductRepository) {
-    var commands = hashMapOf(
-        "info" to CommandReference(description = "Command that shows information about collection") { args, onCompleted ->
+    private var commands = hashMapOf(
+        "info" to CommandReference(description = "Command that shows information about collection") { payload, args, onCompleted ->
             onCompleted(ExecutionResult(message = ProductCollectionInfo(repo).toString()))
         },
-        "show" to CommandReference(description = "Command that shows all elements of collection") { args, onCompleted ->
+        "show" to CommandReference(description = "Command that shows all elements of collection") { payload, args, onCompleted ->
             var msg = ""
             repo.getProducts().forEach {
                 msg += it.toString()
             }
             onCompleted(ExecutionResult(message = msg))
         },
-        "add" to CommandReference(description = "Command that adds new element to collection") { args, onCompleted ->
+        "add" to CommandReference(description = "Command that adds new element to collection") { payload, args, onCompleted ->
             try {
                 repo.addProduct(ProductFabric.constructProductFromConsole()!!)
             } catch (e: Exception) {
@@ -37,7 +37,7 @@ class CommandInfo(private val repo: ProductRepository) {
             arguments = listOf(
                 Argument("id", CPT.INTEGER, "Id of element to update")
             )
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             try {
                 repo.removeProductById(args[0].toInt().toLong())
                 repo.addProduct(ProductFabric.constructProductFromConsoleWithId(args[0].toInt().toLong()))
@@ -51,7 +51,7 @@ class CommandInfo(private val repo: ProductRepository) {
             listOf(
                 Argument("id", CPT.INTEGER, "Id of element to delete")
             )
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             try {
                 if (!repo.removeProductById(args[0].toLong())) throw Exception("Element with id ${args[0]} not found")
             } catch (e: Exception) {
@@ -59,7 +59,7 @@ class CommandInfo(private val repo: ProductRepository) {
             }
             onCompleted(ExecutionResult(message = "Element removed"))
         },
-        "clear" to CommandReference(description = "Command that clears collection") { args, onCompleted ->
+        "clear" to CommandReference(description = "Command that clears collection") { payload, args, onCompleted ->
             repo.clear()
             onCompleted(ExecutionResult(message = "Collection cleared"))
         },
@@ -68,7 +68,7 @@ class CommandInfo(private val repo: ProductRepository) {
             listOf(
                 Argument("filepath", CPT.STRING, "abs filepath to save collection to")
             )
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             val filename = args[0]
             if (repo.saveToFile(filename)) {
                 onCompleted(ExecutionResult(message = "Collection saved to $filename"))
@@ -82,7 +82,7 @@ class CommandInfo(private val repo: ProductRepository) {
                 Argument("filepath", CPT.STRING, "abs filepath to script"),
                 Argument("skip_recursion_check", CPT.BOOL, "Skips bruteforce recursion check"),
             )
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             val filepath = args[0]
             val lines = readlinesFile(filepath)
             ScriptExecutor(lines, repo.copy()).check(onError = { error ->
@@ -96,8 +96,8 @@ class CommandInfo(private val repo: ProductRepository) {
         },
         "add_if_max" to CommandReference(
             description = "Command that adds new element to collection if it's price is greater than max price in collection"
-        ) { args, onCompleted ->
-            val product1 = ProductFabric.constructProductFromConsole()?.let {
+        ) { payload, args, onCompleted ->
+            ProductFabric.constructProductFromConsole()?.let {
                 if (repo.compareMax(it)) {
                     repo.addProduct(it)
                 }
@@ -112,8 +112,8 @@ class CommandInfo(private val repo: ProductRepository) {
         },
         "add_if_min" to CommandReference(
             description = "Command that adds new element to collection if it's price is less than max price in collection"
-        ) { args, onCompleted ->
-            val product1 = ProductFabric.constructProductFromConsole()?.let {
+        ) { payload, args, onCompleted ->
+            ProductFabric.constructProductFromConsole()?.let {
                 if (repo.compareMin(it)) {
                     repo.addProduct(it)
                 }
@@ -127,14 +127,13 @@ class CommandInfo(private val repo: ProductRepository) {
         },
         "remove_greater" to CommandReference(
             description = "Command that removes all elements that are greater than specified"
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             var prod: Product? = null
             try {
                 prod = ProductFabric.constructProductFromConsole()
             } catch (e: Exception) {
                 onCompleted(ExecutionResult(error = e.message))
             }
-
             onCompleted(ExecutionResult(message = "Removed ${prod?.let { repo.removeAllGreaterThan(it) }} elements"))
         },
         "group_counting_by_price" to CommandReference(
@@ -142,7 +141,7 @@ class CommandInfo(private val repo: ProductRepository) {
             arguments = listOf(
                 Argument("price", CPT.INTEGER, "Price to group by")
             )
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             var msg = ""
             repo.getProducts().groupBy { args[0] }.forEach {
                 msg += "Price: ${it.key}, count: ${it.value.size}\n"
@@ -154,7 +153,7 @@ class CommandInfo(private val repo: ProductRepository) {
             arguments = listOf(
                 Argument("substring", CPT.STRING, "Substring to check")
             )
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             var msg = ""
             repo.getProducts().filter { it.partNumber?.startsWith(args[0]) == true }.forEach {
                 msg += it.toString()
@@ -166,7 +165,7 @@ class CommandInfo(private val repo: ProductRepository) {
             arguments = listOf(
                 Argument("price", CPT.INTEGER, "Price to check")
             )
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             var msg = ""
             repo.getProducts().filter { (it.price ?: -1) > args[0].toInt() }.forEach {
                 msg += it.toString()
@@ -175,15 +174,15 @@ class CommandInfo(private val repo: ProductRepository) {
         }
     )
 
-    val runtimeCommands = hashMapOf<String, CommandReference>(
+    val runtimeCommands = hashMapOf(
         "add_command" to CommandReference(
             description = "Command that adds new command", arguments = listOf(
                 Argument("name", CPT.STRING, description = "Name of command"),
                 Argument("description", CPT.STRING, description = "Description of command"),
             )
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             try {
-                commands[args[0]] = CommandReference(description = "Command ad") { args, onCompleted ->
+                commands[args[0]] = CommandReference(description = "Command ad") { payload, args, onCompleted ->
                     onCompleted(ExecutionResult(message = "Command added at runtime"))
                 }
             } catch (e: Exception) {
@@ -193,7 +192,7 @@ class CommandInfo(private val repo: ProductRepository) {
         },
         "help" to CommandReference(
             description = "Manual for all commands"
-        ) { args, onCompleted ->
+        ) { payload, args, onCompleted ->
             var msg = "Available commands:\n"
             commands.forEach { (name, command) ->
                 var argumentsString = "\n"

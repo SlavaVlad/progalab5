@@ -2,7 +2,8 @@ package app.server
 
 import app.server.persistence.utils.Client
 import app.server.persistence.utils.Server
-import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import persistence.checkerComponent.Command
 import persistence.checkerComponent.Log
 import persistence.checkerComponent.printToConsole
@@ -12,8 +13,8 @@ import persistence.database.ProductRepository
 import persistence.utils.ConsoleColors
 import persistence.utils.makeInput
 import persistence.utils.printlnc
-import java.util.*
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 
 var repo: ProductRepository = ProductRepository()
@@ -23,12 +24,12 @@ lateinit var arguments: Array<String>
 fun main(args: Array<String>) {
     arguments = args
     when (args[0]) {
-        "-server" -> { // -server -host -port (mode; port)
+        "-server" -> { // -server port
             launchServer()
         }
 
         "-client" -> {
-            launchClient() // -client -1337
+            launchClient() // -client serverip port
         }
 
         else -> {
@@ -43,42 +44,19 @@ fun launchClient() {
         arguments[1]
     )
 
-    fun sendCommand(command: Command, repo: ProductRepository): String? { // input handler
-        CommandInfo(repo)
-            .findReferenceOrNull(command.name!!)?.let {
-                val mapper = ObjectMapper()
-                mapper.writeValue(client.output, command)
-            }
-        return null
+    thread {
+        client.awaitMessageOrResult(
+            onStringMessage = { println("message: $it") },
+            onExecutionResult = { printToConsole(it) }
+        )
     }
 
     thread {
         while (true) {
-            if (client.input
-                .readLine()
-                .isNotBlank()) {
-                println("hasNext")
-                val value = client.input.readText()
-                val mapper = ObjectMapper()
-                val result = mapper.readValue(value, ExecutionResult::class.java)
-                println("client: received result: ${result.message}")
-                printToConsole(result)
-            }
-        }
-    }
-
-    thread {
-        while (true) {
-            readlnOrNull().let {
-                if (it != null) {
-                    try {
-                        sendCommand(
-                            Command
-                                .make(makeInput(it))!!, repo
-                        )
-                    } catch (e: Exception) {
-                        error(e.message ?: "Error while making command; ${e.printStackTrace()}")
-                    }
+            readlnOrNull().let { input ->
+                if (input != null) {
+                    val command: Command = (Command.make(makeInput(input)) ?: (error("Command not found"))) as Command
+                    client.sendCommand(command)
                 }
             }
         }
@@ -87,27 +65,17 @@ fun launchClient() {
 }
 
 fun launchServer() {
-
     val server = Server(
-        arguments[1].toInt(),
-        arguments[0]
+        arguments[1].toIntOrNull() ?: 5000
     )
 
-
     thread {
-        val scanner = Scanner(server.input)
-        while (true) {
-            if (scanner.hasNextLine()) {
-                val value = scanner.nextLine()
-                val mapper = ObjectMapper()
-                val command = mapper.readValue(value, Command::class.java)
-                handleCommand(command, repo) {
-                    val outMapper = ObjectMapper()
-                    outMapper.writeValue(server.output, it)
-                    println("server: write to PW")
-                }
-            }
-        }
+        server.awaitCommand()
+        server.sendMessage(
+            Message(
+                "Server ${arguments[0]}:${arguments[1].toInt()}", "Server is ready"
+            )
+        )
     }
 
 }
@@ -119,10 +87,11 @@ fun error(errorText: String = "Unknown error") {
 fun handleCommand(
     command: Command,
     repo: ProductRepository,
-    callback: (ExecutionResult) -> Unit = { _ -> }
-) { // input handler
+    payload: Any? = null,
+    callback: (ExecutionResult) -> Unit = { _ -> },
+) {
     val ref = CommandInfo(repo)
         .findReferenceOrNull(command.name!!)!!
     ref.function
-        .invoke(command.args!!.toList(), callback)
+        .invoke(payload, command.args!!.toList(), callback)
 }

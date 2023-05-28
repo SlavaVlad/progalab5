@@ -1,3 +1,2 @@
-
 rootProject.name = "progalab5"
 
