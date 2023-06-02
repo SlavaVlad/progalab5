@@ -67,14 +67,15 @@ object ProductFabric {
 
             val price = requestUserInput("Enter product price:") { it.toLongOrNull() != null }.toLong()
 
-            val partNumber = requestUserInput("Enter product part number:")
+            val partNumber = requestUserInput("Enter product part number:") { it.length >= 13 }
 
             val unitOfMeasure = constructUnitOfMeasureFromConsole()
 
             val owner = constructPersonFromConsole()
 
             return Product(
-                name = name,
+                id = System.currentTimeMillis(),
+                name0 = name,
                 coordinates = coordinates,
                 price = price,
                 partNumber = partNumber,
@@ -105,7 +106,7 @@ object ProductFabric {
 
         return Product(
             id = id,
-            name = name,
+            name0 = name,
             coordinates = coordinates,
             price = price,
             partNumber = partNumber,

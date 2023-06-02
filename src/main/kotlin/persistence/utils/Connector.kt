@@ -17,15 +17,11 @@ interface Connector {
     val objectMapper: ObjectMapper
         get() = ObjectMapper()
 
-    fun close() {
-        output.close()
-        input.close()
-    }
 }
 
 class Client(
     override val port: Int,
-    val hostIp: String
+    hostIp: String
 ) : Connector {
     private val client = Socket(hostIp, 8899)
 
@@ -80,13 +76,12 @@ class Server(
         while (true) {
             val receivedMessage = input.readLine()
             if (receivedMessage != null) {
-                val command = try {
+                try {
                     objectMapper.readValue(receivedMessage, Command::class.java)
                 } catch (e: Exception) {
                     null
-                }
-                if (command != null) {
-                    handleCommand(command, repo) { result ->
+                }?.let {
+                    handleCommand(it, repo) { result ->
                         sendMessage(result)
                     }
                 }

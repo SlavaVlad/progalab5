@@ -21,7 +21,7 @@ object CollectionLoader : CollectionSaveLoader {
                 }
                 Product(
                     id = a[0].toLong(),
-                    name = a[1],
+                    name0 = a[1],
                     coordinates = Coordinates(a[2].toLong(), a[3].toInt()),
                     price = a[4].toDouble().roundToLong(),
                     partNumber = a[5],

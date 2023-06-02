@@ -22,7 +22,7 @@ class ProductCollectionInfo(collection: ProductRepository) {
 
     override fun toString(): String {
         return "Collection size = ${products.size}" +
-                "\nMost expensive product is ${getMostExpensiveProduct()?.name} id=${getMostExpensiveProduct()?.id}" +
+                "\nMost expensive product is ${getMostExpensiveProduct()?.name0} id=${getMostExpensiveProduct()?.id}" +
                 "\nAverage products price = ${getAveragePrice()}" +
                 "\n owners list: ${getOwners()}"
     }

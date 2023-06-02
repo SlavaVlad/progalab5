@@ -108,3 +108,13 @@ fun <T> MutableMap<T, Int>.addDecrement(key: T) {
 fun <V, T> HashMap<V, T>.plusAssign(pair: Pair<V, T>) {
     this[pair.first] = pair.second
 }
+
+fun Boolean.toInt() = if (this) 1 else 0
+
+fun Boolean.cond(ifFalse: () -> Unit = {}, ifTrue: () -> Unit) {
+    if (this) {
+        ifTrue()
+    } else {
+        ifFalse()
+    }
+}

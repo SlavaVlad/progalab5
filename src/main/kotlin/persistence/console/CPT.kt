@@ -8,4 +8,5 @@ enum class CPT(val pattern: Pattern) {
      INTEGER(Pattern.compile("[+-]?[0-9]*")),
      DOUBLE(Pattern.compile("[+-]?([0-9]*[.])?[0-9]+")),
      FILEPATH(Pattern.compile("^([a-zA-Z]:)?(\\\\[^<>:\"/\\\\|?*]+)+\\\\?\n")),
+     JSON(Pattern.compile("""^\s*(\{.*\}|\[.*\])\s*$"""))
 }

@@ -9,7 +9,7 @@ import java.util.*
 class Product(
     val id //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     : Long? = System.currentTimeMillis(),
-    val name //Поле не может быть null, Строка не может быть пустой
+    val name0 //Поле не может быть null, Строка не может быть пустой
     : String? = null,
     val coordinates //Поле не может быть null
     : Coordinates? = null,
@@ -26,25 +26,16 @@ class Product(
     : Person? = null,
 ) : Comparable<Product> {
 
-    init {
-        require(id == null || id > 0) { "id must be greater than 0" }
-        require(!name.isNullOrBlank()) { "name must not be null or blank" }
-        require(coordinates != null) { "coordinates must not be null" }
-        require(price != null && price > 0) { "price must be greater than 0" }
-        require(partNumber != null && partNumber.length >= 13) { "partNumber must have length at least 13" }
-        require(unitOfMeasure != null) { "unitOfMeasure must not be null" }
-    }
-
     override fun compareTo(other: Product): Int {
         return this.price!!.compareTo(other.price!!)
     }
 
     override fun toString(): String {
-        return "Product(id=$id, name=$name, coordinates=$coordinates, price=$price, creationDate=$creationDate, partNumber=$partNumber, unitOfMeasure=$unitOfMeasure, owner=$owner)"
+        return "Product(id=$id, name=$name0, coordinates=$coordinates, price=$price, creationDate=$creationDate, partNumber=$partNumber, unitOfMeasure=$unitOfMeasure, owner=$owner)"
     }
     
     fun getWriterString(): String {
-        return ("\n${id},${name},${coordinates?.x},${coordinates?.y},${price},${partNumber},${unitOfMeasure},${owner?.name},${owner?.height},${owner?.weight},${owner?.location?.x},${owner?.location?.y},${owner?.location?.z}")
+        return ("\n${id},${name0},${coordinates?.x},${coordinates?.y},${price},${partNumber},${unitOfMeasure},${owner?.name},${owner?.height},${owner?.weight},${owner?.location?.x},${owner?.location?.y},${owner?.location?.z}")
     }
 
 }

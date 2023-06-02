@@ -1,5 +1,7 @@
 package persistence.checkerComponent
 
+import app.server.error
+import persistence.console.CPT
 import persistence.data.CommandInfo
 import persistence.console.ConsoleError
 import persistence.database.ProductRepository
@@ -13,7 +15,7 @@ class Command(
     var args: Array<String>? = null,
 ) : Serializable {
     companion object {
-        fun make(input: Array<String>, onError: (String) -> Unit = { app.server.error(it) }): Command? {
+        fun make(input: Array<String>, onError: (String) -> Unit = { error(it) }, callPrecompile: (CommandReference) -> List<String>): Command? {
             val command: String
             try {
                 command = input[0]
@@ -26,15 +28,19 @@ class Command(
                 // ничего не ввели и нажали Enter
                 return null
             }
-
-            val args = input.takeAfter(0)
+            var args = input.takeAfter(0)
             val ref = CommandInfo(ProductRepository()).findReferenceOrNull(command)!!
-            val argsCount = ref.arguments?.size
-            if (argsCount != args.size) {
-                if (args.size > (ref.arguments?.size ?: 0)) {
+            val refArgsCount = ref.arguments?.size?: 0
+
+            if (ref.arguments?.any { it.type == CPT.JSON }?.and((args.size != ref.arguments.size)) == true) {
+                args = callPrecompile(ref).toTypedArray().takeAfter(0)
+            }
+
+            if (refArgsCount != args.size) {
+                if (args.size > (refArgsCount)) {
                     onError(ConsoleError.too_many_arguments.format(command))
                     return null
-                } else if (args.size < (ref.arguments?.size ?: 0)) {
+                } else if (args.size < (refArgsCount)) {
                     onError(ConsoleError.not_enough_arguments.format(command))
                     return null
                 }
@@ -50,7 +56,6 @@ class Command(
                     return null
                 }
             }
-
             return Command(command, args)
         }
     }

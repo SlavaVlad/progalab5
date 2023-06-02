@@ -1,5 +1,6 @@
 package persistence.checkerComponent
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import persistence.console.CPT
 import persistence.data.ExecutionResult
 import java.util.FormattableFlags
@@ -24,9 +25,8 @@ data class Argument(
 data class CommandReference(
     val description: String? = "Command is not implemented yet",
     val arguments: List<Argument>? = null, // argument, pattern
-    val preProcess: () -> Any = {},
+    val preCompile: (List<String>) -> List<String> = { it },
     val function: (
-        additionalPayload: Any?,
         List<String>,
         (ExecutionResult) -> Unit
     ) -> Unit

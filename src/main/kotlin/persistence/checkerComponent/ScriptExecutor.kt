@@ -52,9 +52,11 @@ class ScriptExecutor(val lines: List<String>, val sandboxRepo: ProductRepository
             unsupportedCommandsList.forEach {
                 if (input[0] == it) throw CommandCompilationException("Command $it is not supported in script mode")
             }
-            val command = Command.make(input) { errorString ->
+            val command = Command.make(input, onError =  { errorString ->
                 commands.clear()
                 throw CommandCompilationException(errorString)
+            }) { ref ->
+                return@make ref.preCompile.invoke(input.toList())
             }
             commands.add(command!!)
         }
