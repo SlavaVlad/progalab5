@@ -15,7 +15,7 @@ import persistence.utils.ConsoleColors
 import persistence.utils.readlinesFile
 
 class CommandInfo(private val repo: ProductRepository = ProductRepository()) {
-    fun addProductToListAsJson(list: List<String>): MutableList<String> {
+    private fun addProductToListAsJson(list: List<String>): MutableList<String> {
         val mapper = ObjectMapper()
         val newList = mutableListOf<String>().apply { addAll(list) }
         val jsonArg = mapper.writeValueAsString(ProductFabric.constructProductFromConsole())
@@ -23,7 +23,7 @@ class CommandInfo(private val repo: ProductRepository = ProductRepository()) {
         return newList
     }
 
-    fun addProductWithIdToListAsJson(list: List<String>, id: Long): MutableList<String> {
+    private fun addProductWithIdToListAsJson(list: List<String>, id: Long): MutableList<String> {
         val mapper = ObjectMapper()
         val newList = mutableListOf<String>().apply { addAll(list) }
         val jsonArg = mapper.writeValueAsString(ProductFabric.constructProductFromConsoleWithId(id))
@@ -97,19 +97,19 @@ class CommandInfo(private val repo: ProductRepository = ProductRepository()) {
             repo.clear()
             onCompleted(ExecutionResult(message = "Collection cleared"))
         },
-        "save" to CommandReference(
-            description = "Command that saves collection to file",
-            listOf(
-                Argument("filepath", CPT.STRING, "abs filepath to save collection to")
-            )
-        ) { args, onCompleted ->
-            val filename = args[0]
-            if (repo.saveToFile(filename)) {
-                onCompleted(ExecutionResult(message = "Collection saved to $filename"))
-            } else {
-                onCompleted(ExecutionResult(error = "Error while saving collection to $filename"))
-            }
-        },
+//        "save" to CommandReference(
+//            description = "Command that saves collection to file",
+//            listOf(
+//                Argument("filepath", CPT.STRING, "abs filepath to save collection to")
+//            )
+//        ) { args, onCompleted ->
+//            val filename = args[0]
+//            if (repo.saveToFile(filename)) {
+//                onCompleted(ExecutionResult(message = "Collection saved to $filename"))
+//            } else {
+//                onCompleted(ExecutionResult(error = "Error while saving collection to $filename"))
+//            }
+//        },
         "execute_script" to CommandReference(
             description = "Command that executes script from file with command sequence. Include checks and recursion check.",
             listOf(
