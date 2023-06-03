@@ -1,10 +1,7 @@
-package persistence.checkerComponent
+package app.common.server
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import persistence.console.CPT
 import persistence.data.ExecutionResult
-import java.util.FormattableFlags
-import kotlin.reflect.jvm.internal.impl.metadata.deserialization.Flags
 
 fun printToConsole(result: ExecutionResult) {
     result.error?.let { println(it) }

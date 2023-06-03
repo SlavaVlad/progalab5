@@ -1,7 +1,9 @@
-package persistence.checkerComponent
+package app.common.client
 
 import persistence.database.ProductRepository
-import app.server.handleCommand
+import app.common.handleCommand
+import app.common.server.Command
+import app.common.server.CommandCompilationException
 import persistence.utils.addIncrement
 import persistence.utils.makeInput
 
@@ -14,31 +16,36 @@ import persistence.utils.makeInput
 
 class Log(val tag: String) {
     var logString = ""
+
     enum class LogLevel {
         INFO, WARN, ERROR
     }
+
     fun log(level: LogLevel, message: String) {
         val string = "$level/$tag: $message"
         logString += "string\n"
         println(string)
     }
+
     fun e(message: String) {
         log(LogLevel.ERROR, message)
     }
+
     fun w(message: String) {
         log(LogLevel.WARN, message)
     }
+
     fun i(message: String) {
         log(LogLevel.INFO, message)
     }
 }
 
-class ScriptExecutor(val lines: List<String>, val sandboxRepo: ProductRepository) {
-    val commands = mutableListOf<Command>()
-    val log = Log("ScriptExecutor")
-    val scriptsUsed = mutableMapOf<String, Int>()
+class ScriptExecutorClient(private val lines: List<String>) {
+    private val commands = mutableListOf<Command>()
+    private val log = Log("ScriptExecutor")
+    private val scriptsUsed = mutableMapOf<String, Int>()
 
-    val unsupportedCommandsList = listOf(
+    private val unsupportedCommandsList = listOf(
         "add",
         "update",
         "add_if_max",
@@ -46,13 +53,13 @@ class ScriptExecutor(val lines: List<String>, val sandboxRepo: ProductRepository
     )
 
     // e существование команды и проверка аргументов
-    fun checkCommands() {
+    private fun checkCommands() {
         lines.forEachIndexed { index, line ->
             val input = makeInput(line)
             unsupportedCommandsList.forEach {
                 if (input[0] == it) throw CommandCompilationException("Command $it is not supported in script mode")
             }
-            val command = Command.make(input, onError =  { errorString ->
+            val command = Command.make(input, onError = { errorString ->
                 commands.clear()
                 throw CommandCompilationException(errorString)
             }) { ref ->
@@ -65,22 +72,17 @@ class ScriptExecutor(val lines: List<String>, val sandboxRepo: ProductRepository
 
     // e recursion - запуск скрипта из скрипта, проверка запуском в "виртуальной среде" не предсказательный тест, а прямой
     private fun checkRecursion() {
-        try {
-            commands.forEachIndexed { i, command ->
-                if (command.name == "execute_script") scriptsUsed.addIncrement(command.args!![0])
-                handleCommand(command, sandboxRepo)
-            }
-        } catch (e: StackOverflowError) {
-            throw CommandCompilationException("StackOverflow detected while running script")
+        commands.forEachIndexed { i, command ->
+            if (command.name == "execute_script") scriptsUsed.addIncrement(command.args!![0])
         }
         checkScriptFromScript()
     }
 
     // w длина скрипта
-    fun checkScriptLength() {
+    private fun checkScriptLength() {
         if (commands.count {
-            it.name == "execute_script"
-        } > 100) {
+                it.name == "execute_script"
+            } > 100) {
             log.w("script is longer than 100 lines (total ${commands.count()} commands))")
         }
     }
@@ -92,13 +94,15 @@ class ScriptExecutor(val lines: List<String>, val sandboxRepo: ProductRepository
         log.w("Used scripts: ${scriptsUsed.map { "${it.key} - ${it.value} times" }}")
     }
 
-    fun check(onSuccess: (String, List<Command>) -> Unit, onError: (String) -> Unit, skipResursion: Boolean) {
+    fun check(onSuccess: (String, List<Command>) -> Unit, onError: (String) -> Unit) {
         try {
             checkCommands()
             checkRecursion()
             checkScriptLength()
-            onSuccess("Log:\n" +
-                    log.logString, commands)
+            onSuccess(
+                "Log:\n" +
+                        log.logString, commands
+            )
         } catch (e: Exception) {
             log.e("Script check failed (${e.message}), execution forbidden")
             onError(e.message ?: "Error while compiling command \nLog:\n${log.logString}")

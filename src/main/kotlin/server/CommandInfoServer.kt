@@ -1,20 +1,16 @@
-package persistence.data
+package app.common.server
 
 import persistence.database.utils.ProductCollectionInfo
-import persistence.checkerComponent.Argument
-import persistence.checkerComponent.CommandReference
-import persistence.checkerComponent.ScriptExecutor
 import persistence.console.CPT
 import persistence.database.ProductFabric
 import persistence.database.ProductRepository
 import persistence.database.product.Product
-import app.server.handleCommand
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import persistence.data.ExecutionResult
 import persistence.utils.ConsoleColors
-import persistence.utils.readlinesFile
 
-class CommandInfo(private val repo: ProductRepository = ProductRepository()) {
+class CommandInfoServer(private val repo: ProductRepository = ProductRepository()) {
     private fun addProductToListAsJson(list: List<String>): MutableList<String> {
         val mapper = ObjectMapper()
         val newList = mutableListOf<String>().apply { addAll(list) }
@@ -110,24 +106,6 @@ class CommandInfo(private val repo: ProductRepository = ProductRepository()) {
 //                onCompleted(ExecutionResult(error = "Error while saving collection to $filename"))
 //            }
 //        },
-        "execute_script" to CommandReference(
-            description = "Command that executes script from file with command sequence. Include checks and recursion check.",
-            listOf(
-                Argument("filepath", CPT.STRING, "abs filepath to script"),
-                Argument("skip_recursion_check", CPT.BOOL, "Skips bruteforce recursion check"),
-            )
-        ) { args, onCompleted ->
-            val filepath = args[0]
-            val lines = readlinesFile(filepath)
-            ScriptExecutor(lines, repo.copy()).check(onError = { error ->
-                onCompleted(ExecutionResult(error = error))
-            }, onSuccess = { log, commands ->
-                commands.forEach {
-                    handleCommand(it, repo)
-                }
-                onCompleted(ExecutionResult(message = "Script executed"))
-            }, skipResursion = args[1].toBoolean())
-        },
         "add_if_max" to CommandReference(
             description = "Command that adds new element to collection if it's price is greater than max price in collection",
             arguments = listOf(

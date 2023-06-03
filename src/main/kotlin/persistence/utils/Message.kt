@@ -1,4 +1,4 @@
-package app.server.persistence.utils
+package app.common.persistence.utils
 
 import persistence.utils.ConsoleColors
 import java.sql.Timestamp

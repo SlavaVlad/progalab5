@@ -1,13 +1,14 @@
-package app.server.persistence.utils
+package app.common.persistence.utils
 
-import app.server.handleCommand
-import app.server.repo
+import app.common.handleCommand
+import app.common.repo
 import com.fasterxml.jackson.databind.ObjectMapper
-import persistence.checkerComponent.Command
+import app.common.server.Command
 import persistence.data.ExecutionResult
 import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
+import kotlin.concurrent.thread
 
 interface Connector {
     val port: Int
@@ -27,10 +28,6 @@ class Client(
 
     override val output = PrintWriter(client.getOutputStream(), true)
     override val input = BufferedReader(InputStreamReader(client.inputStream))
-
-    init {
-        output.println("{\"name\": \"info\",\"args\":[]}")
-    }
 
     fun sendCommand(command: Command) {
         val json = objectMapper.writeValueAsString(command)
@@ -74,24 +71,30 @@ class Server(
 
     fun awaitCommand() {
         while (true) {
-            val receivedMessage = input.readLine()
-            if (receivedMessage != null) {
-                try {
-                    objectMapper.readValue(receivedMessage, Command::class.java)
-                } catch (e: Exception) {
-                    null
-                }?.let {
-                    handleCommand(it, repo) { result ->
-                        sendMessage(result)
+            val client = server.accept()
+            thread {
+                val output = PrintWriter(client.getOutputStream(), true)
+                val input = BufferedReader(InputStreamReader(client.inputStream))
+
+                fun sendMessage(message: Any) {
+                    val json = objectMapper.writeValueAsString(message)
+                    output.println(json)
+                }
+
+                while (true) {
+                    val receivedMessage = input.readLine()
+                    if (receivedMessage != null) {
+                        try {
+                            val command = objectMapper.readValue(receivedMessage, Command::class.java)
+                            handleCommand(command, repo) { result ->
+                                sendMessage(result)
+                            }
+                        } catch (e: Exception) {
+                            sendMessage("Error, ${e.message}; ${e.printStackTrace()}")
+                        }
                     }
                 }
             }
         }
     }
-
-    fun sendMessage(message: Any) {
-        val json = objectMapper.writeValueAsString(message)
-        output.println(json)
-    }
-
 }

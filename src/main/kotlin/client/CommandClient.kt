@@ -1,8 +1,7 @@
-package persistence.checkerComponent
+package app.common.client
 
-import app.server.error
+import app.common.error
 import persistence.console.CPT
-import persistence.data.CommandInfo
 import persistence.console.ConsoleError
 import persistence.database.ProductRepository
 import persistence.utils.takeAfter
@@ -15,11 +14,11 @@ class Command(
     var args: Array<String>? = null,
 ) : Serializable {
     companion object {
-        fun make(input: Array<String>, onError: (String) -> Unit = { error(it) }, callPrecompile: (CommandReference) -> List<String>): Command? {
+        fun make(input: Array<String>, onError: (String) -> Unit = { error(it) }, callPrecompile: (CommandReferenceClient) -> List<String>): Command? {
             val command: String
             try {
                 command = input[0]
-                if (CommandInfo(ProductRepository()).findReferenceOrNull(command) == null) {
+                if (CommandInfoClient(ProductRepository()).findReferenceOrNull(command) == null) {
                     if (command.isBlank()) return null
                     onError("command not exists")
                     return null
@@ -29,7 +28,7 @@ class Command(
                 return null
             }
             var args = input.takeAfter(0)
-            val ref = CommandInfo(ProductRepository()).findReferenceOrNull(command)!!
+            val ref = CommandInfoClient(ProductRepository()).findReferenceOrNull(command)!!
             val refArgsCount = ref.arguments?.size?: 0
 
             if (ref.arguments?.any { it.type == CPT.JSON }?.and((args.size != ref.arguments.size)) == true) {

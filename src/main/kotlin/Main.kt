@@ -1,21 +1,18 @@
-package app.server
+package app.common
 
-import app.server.persistence.utils.Message
-import app.server.persistence.utils.Client
-import app.server.persistence.utils.Server
-import persistence.checkerComponent.Command
-import persistence.checkerComponent.Log
-import persistence.checkerComponent.printToConsole
+import app.common.persistence.utils.Client
+import app.common.persistence.utils.Server
+import app.common.server.Command
+import app.common.client.Log
+import app.common.server.printToConsole
 import persistence.console.CPT
-import persistence.data.CommandInfo
+import app.common.server.CommandInfoServer
 import persistence.data.ExecutionResult
 import persistence.database.ProductRepository
 import persistence.utils.ConsoleColors
-import persistence.utils.cond
 import persistence.utils.makeInput
 import persistence.utils.printlnc
 import kotlin.concurrent.thread
-import kotlin.test.assertTrue
 
 
 var repo: ProductRepository = ProductRepository()
@@ -65,16 +62,10 @@ fun launchClient() {
     }
 }
 
-/**
- * Эксперты утверждают: в недрах этой функции заложен смысл, который заключается в том,
-* чтобы проверять, содержит ли команда в списке аргументов аргумент с типом JSON и что позиция,
-* где он должен был быть при вводе команды пуста (null)
- * * P.S.> Это не шутка, это действительно так работает
- * * P. P. S.> Не используется, но оставлю это в моём гитхабе на память о том, что я творил на 1 курсе
- * */
+
 fun checkForPayload(formattedArgs: Array<String>): Boolean {
-    return ((CommandInfo().findReferenceOrNull(formattedArgs[0])?.arguments?.any { it.type == CPT.JSON })?.and(
-        (CommandInfo().findReferenceOrNull(
+    return ((CommandInfoServer().findReferenceOrNull(formattedArgs[0])?.arguments?.any { it.type == CPT.JSON })?.and(
+        (CommandInfoServer().findReferenceOrNull(
             formattedArgs[0]
         )?.arguments?.indexOfFirst { it.type == CPT.JSON }
             ?.let { formattedArgs.getOrNull(it) } == null)) == true)
@@ -82,16 +73,9 @@ fun checkForPayload(formattedArgs: Array<String>): Boolean {
 
 fun launchServer() {
     val server = Server(
-        arguments[1].toIntOrNull() ?: 5000
+        arguments[1].toIntOrNull() ?: 8899
     )
-    thread {
-        server.awaitCommand()
-        server.sendMessage(
-            Message(
-                "Server ${arguments[0]}:${arguments[1].toInt()}", "Server is ready"
-            )
-        )
-    }
+    server.awaitCommand()
 }
 
 fun error(errorText: String = "Unknown error") {
@@ -103,7 +87,7 @@ fun handleCommand(
     repo: ProductRepository,
     callback: (ExecutionResult) -> Unit = { _ -> },
 ) {
-    val ref = CommandInfo(repo)
+    val ref = CommandInfoServer(repo)
         .findReferenceOrNull(command.name!!)
     ref?.function
         ?.invoke(command.args!!.toList(), callback)
