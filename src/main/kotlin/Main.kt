@@ -14,16 +14,17 @@ import persistence.utils.makeInput
 import persistence.utils.printlnc
 import kotlin.concurrent.thread
 
+// Обработка падения / недоступности секрвера
 
 var repo: ProductRepository = ProductRepository()
 lateinit var arguments: Array<String>
 
-
 fun main(args: Array<String>) {
     arguments = args
+    listOf<String>()
     when (args[0]) {
         "-server" -> { // -server port
-            launchServer()
+            launchServer() //26488
         }
 
         "-client" -> {

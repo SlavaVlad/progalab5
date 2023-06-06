@@ -1,11 +1,15 @@
 package app.common.client
 
+import app.common.handleCommand
+import app.common.server.CommandReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import persistence.console.CPT
+import persistence.data.ExecutionResult
 import persistence.database.ProductFabric
 import persistence.database.ProductRepository
 import persistence.database.product.Product
+import persistence.utils.readlinesFile
 
 class CommandInfoClient(private val repo: ProductRepository = ProductRepository()) {
     private fun addProductToListAsJson(list: List<String>): MutableList<String> {
@@ -70,13 +74,23 @@ class CommandInfoClient(private val repo: ProductRepository = ProductRepository(
 //                onCompleted(ExecutionResult(error = "Error while saving collection to $filename"))
 //            }
 //        },
-        "execute_script" to CommandReferenceClient(
-            description = "Command that executes script from file with command sequence. Include checks and recursion check.",
-            listOf(
-                Argument("filepath", CPT.STRING, "abs filepath to script"),
-                Argument("skip_recursion_check", CPT.BOOL, "Skips bruteforce recursion check"),
-            )
-        ),
+//        "execute_script" to CommandReferenceClient(
+//            description = "Command that executes script from file with command sequence. Include checks and recursion check.",
+//            listOf(
+//                Argument("filepath", CPT.STRING, "abs filepath to script")
+//            ), preCompile = {
+//                val filepath = it[0]
+//                val lines = readlinesFile(filepath)
+//                ScriptExecutorClient(lines).check(onError = { error ->
+//                    println("Script is incorrect: $error")
+//                }, onSuccess = { log, commands ->
+//                    commands.forEach {
+//                        handleCommand(it, repo)
+//                    }
+//                })
+//
+//                return@CommandReferenceClient emptyList()
+//            }),
         "add_if_max" to CommandReferenceClient(
             description = "Command that adds new element to collection if it's price is greater than max price in collection",
             arguments = listOf(
