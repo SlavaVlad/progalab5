@@ -1,17 +1,13 @@
 package app.common.client
 
-import app.common.handleCommand
-import app.common.server.CommandReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import persistence.console.CPT
-import persistence.data.ExecutionResult
 import persistence.database.ProductFabric
 import persistence.database.ProductRepository
 import persistence.database.product.Product
-import persistence.utils.readlinesFile
 
-class CommandInfoClient(private val repo: ProductRepository = ProductRepository()) {
+class CommandInfo(private val repo: ProductRepository = ProductRepository()) {
     private fun addProductToListAsJson(list: List<String>): MutableList<String> {
         val mapper = ObjectMapper()
         val newList = mutableListOf<String>().apply { addAll(list) }

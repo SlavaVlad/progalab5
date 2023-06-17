@@ -18,7 +18,7 @@ class Command(
             val command: String
             try {
                 command = input[0]
-                if (CommandInfoClient(ProductRepository()).findReferenceOrNull(command) == null) {
+                if (CommandInfo(ProductRepository()).findReferenceOrNull(command) == null) {
                     if (command.isBlank()) return null
                     onError("command not exists")
                     return null
@@ -28,7 +28,7 @@ class Command(
                 return null
             }
             var args = input.takeAfter(0)
-            val ref = CommandInfoClient(ProductRepository()).findReferenceOrNull(command)!!
+            val ref = CommandInfo(ProductRepository()).findReferenceOrNull(command)!!
             val refArgsCount = ref.arguments?.size?: 0
 
             if (ref.arguments?.any { it.type == CPT.JSON }?.and((args.size != ref.arguments.size)) == true) {

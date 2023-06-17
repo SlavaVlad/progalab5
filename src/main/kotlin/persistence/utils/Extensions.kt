@@ -72,7 +72,7 @@ fun requestUserInput(
     var input: String
     do {
         print(prompt)
-        input = readLine()!!
+        input = readln()
         if (input == "exit") {
             throw InputInterruptException("User interrupted input")
         }

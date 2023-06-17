@@ -26,6 +26,8 @@ buildscript {
     }
 }
 
+val ktor_version: String by project
+
 dependencies {
     implementation("org.jetbrains.kotlin.plugin.parcelize:org.jetbrains.kotlin.plugin.parcelize.gradle.plugin:1.8.10")
     implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:1.8.20-RC")
@@ -40,6 +42,10 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("javax.servlet:javax.servlet-api:4.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+
 }
 
 tasks.test {

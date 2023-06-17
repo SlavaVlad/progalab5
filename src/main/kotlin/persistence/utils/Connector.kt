@@ -10,6 +10,7 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketException
 import kotlin.concurrent.thread
+import app.common.client.Command as ClientCommand
 
 interface Connector {
     val port: Int
@@ -48,7 +49,7 @@ class Client(
         }
     }
 
-    fun sendCommand(command: Command) {
+    fun sendCommand(command: ClientCommand) {
         val json = objectMapper.writeValueAsString(command)
         output?.println(json)
     }

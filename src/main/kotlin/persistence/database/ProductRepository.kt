@@ -26,7 +26,7 @@ data class ProductRepository(private val products: @Contextual TreeSet<Product> 
         return true
     }
 
-    fun loadCollectionFromFile(filename: String): List<Product>? {
+    fun loadCollectionFromFile(filename: String): List<Product> {
         return CollectionLoader.load(filename).toList()
     }
 

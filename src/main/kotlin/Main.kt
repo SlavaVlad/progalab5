@@ -1,5 +1,6 @@
 package app.common
 
+import app.common.client.Command
 import app.common.persistence.utils.Client
 import app.common.persistence.utils.Server
 import app.common.server.Command
@@ -14,7 +15,7 @@ import persistence.utils.makeInput
 import persistence.utils.printlnc
 import kotlin.concurrent.thread
 
-// Обработка падения / недоступности секрвера
+// Обработка падения / недоступности сервера
 
 var repo: ProductRepository = ProductRepository()
 lateinit var arguments: Array<String>

@@ -1,9 +1,5 @@
 package app.common.client
 
-import persistence.database.ProductRepository
-import app.common.handleCommand
-import app.common.server.Command
-import app.common.server.CommandCompilationException
 import persistence.utils.addIncrement
 import persistence.utils.makeInput
 
