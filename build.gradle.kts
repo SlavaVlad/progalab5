@@ -1,10 +1,7 @@
-
-import org.gradle.internal.impldep.org.bouncycastle.asn1.iana.IANAObjectIdentifiers.experimental
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm") version "1.8.10"
     kotlin("plugin.serialization") version "1.8.10"
+    id("org.jetbrains.compose") version "1.4.0"
     application
 }
 
@@ -13,6 +10,7 @@ version = "1.0"
 
 repositories {
     mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
 buildscript {
@@ -33,22 +31,32 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-test:1.8.20-RC")
     implementation("org.jetbrains.kotlin:kotlin-test-junit5:1.8.20-RC")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.20-RC")
+    implementation("io.ktor:ktor-client-logging-jvm:2.3.1")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.1")
+    implementation("io.ktor:ktor-serialization-gson:2.3.1")
+    implementation("io.ktor:ktor-client-cio-jvm:2.3.1")
     testImplementation(kotlin("test"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation ("com.charleskorn.kaml:kaml:0.51.0")
-    implementation ("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("javax.servlet:javax.servlet-api:4.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+
+    val ktor_version = "2.3.1"
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+
+    implementation(compose.desktop.currentOs)
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
-}
+//tasks.withType<KotlinCompile> {
+//    kotlinOptions.jvmTarget = "11"
+//}
 
 application {
     mainClass.set("MainKt")

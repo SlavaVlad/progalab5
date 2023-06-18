@@ -1,18 +1,19 @@
 package app.common.client
 
 import app.common.error
+import kotlinx.serialization.Serializable
 import persistence.console.CPT
 import persistence.console.ConsoleError
 import persistence.database.ProductRepository
 import persistence.utils.takeAfter
-import java.io.Serializable
 
 class CommandCompilationException(message: String) : Exception(message)
 
+@Serializable
 class Command(
     var name: String? = null,
     var args: Array<String>? = null,
-) : Serializable {
+) {
     companion object {
         fun make(input: Array<String>, onError: (String) -> Unit = { error(it) }, callPrecompile: (CommandReferenceClient) -> List<String>): Command? {
             val command: String
