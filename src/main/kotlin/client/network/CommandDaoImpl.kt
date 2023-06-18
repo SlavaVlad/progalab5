@@ -11,19 +11,12 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.util.date.*
-import kotlinx.coroutines.*
-import java.time.Instant
+import persistence.database.product.Product
 
 class CommandDaoImpl : CommandDAO {
-
-    var user = "test"
-    var pass = "1234"
     var token = ""
 
     private val client = HttpClient(CIO) {
@@ -38,6 +31,7 @@ class CommandDaoImpl : CommandDAO {
         defaultRequest {
             url("http:/127.0.0.1/")
             header("Content-Type", "application/json")
+            header("Authorization", "Bearer $token")
         }
         install(HttpCookies)
     }
@@ -49,18 +43,21 @@ class CommandDaoImpl : CommandDAO {
     data class Token(
         val token: String
     )
-    suspend fun login() {
+    suspend fun login(username: String, password: String): Boolean {
         val call = client.post("/login"){
             setBody(Auth(
-                user,
-                pass
+                username,
+                password
             ))
         }
         if (call.status.isSuccess()) {
             token = call.body<Token>().token
+            println("token: $token")
             println("logged in")
+            return true
         } else {
             println("failed")
+            return false
         }
     }
 
@@ -75,6 +72,18 @@ class CommandDaoImpl : CommandDAO {
             setBody(command)
         }
         onResult(Gson().fromJson(response.bodyAsText(), ExecutionResult::class.java))
+    }
+
+    suspend fun getProducts(): List<Product> {
+        return client.get("/products/all").body<List<Product>>()
+    }
+    suspend fun editProduct(p: Product, id: Long) {
+        client.post("/products/edit/$id") {
+            setBody(p)
+        }
+    }
+    suspend fun deleteProduct(id: Long) {
+        client.delete("/products/delete/$id")
     }
 
     fun close() {
