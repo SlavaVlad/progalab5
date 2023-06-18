@@ -4,6 +4,7 @@ import app.common.client.Command
 import com.apu.data.ExecutionResult
 import com.google.gson.Gson
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -22,8 +23,8 @@ import java.time.Instant
 class CommandDaoImpl : CommandDAO {
 
     var user = "test"
-    var pass = "test"
-    var authorised = false
+    var pass = "1234"
+    var token = ""
 
     private val client = HttpClient(CIO) {
         followRedirects = true
@@ -36,53 +37,44 @@ class CommandDaoImpl : CommandDAO {
         }
         defaultRequest {
             url("http:/127.0.0.1/")
-            header("Content-Type", ContentType.Application.Json)
+            header("Content-Type", "application/json")
         }
         install(HttpCookies)
     }
 
-//    init {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            keepLogin()
-//        }
-//    }
-
-    override suspend fun keepLogin() {
-        authorised = true
-        return
-        client.cookies("http://0.0.0.0:8080/").map {
-            authorised =
-                it.name == "user_session" && it.expires?.toJvmDate()?.time!! < Instant.now().epochSecond * 1000L
+    data class Auth(
+        val name: String,
+        val pass: String
+    )
+    data class Token(
+        val token: String
+    )
+    suspend fun login() {
+        val call = client.post("/login"){
+            setBody(Auth(
+                user,
+                pass
+            ))
         }
-        if (!authorised) {
-            val response = client.submitForm("/login") {
-                formData {
-                    this.append("username", user)
-                    this.append("password", pass)
-                }
-            }
-            if (response.status.isSuccess()) {
-                authorised = true
-            }
+        if (call.status.isSuccess()) {
+            token = call.body<Token>().token
+            println("logged in")
+        } else {
+            println("failed")
         }
     }
 
-    // recursion login warning
     override suspend fun sendCommand(
         command: Command,
         onResult: (ExecutionResult?) -> Unit
     ) {
-        runBlocking {
-            keepLogin()
-        }
-        if (authorised) {
-            val response = client.post("/command") {
-                setBody(command)
+        val response = client.post("/command") {
+            if (token.isNotBlank()) {
+                headers.append("Authorization", "Bearer $token")
             }
-            onResult(Gson().fromJson(response.bodyAsText(), ExecutionResult::class.java))
-        } else {
-            onResult(null)
+            setBody(command)
         }
+        onResult(Gson().fromJson(response.bodyAsText(), ExecutionResult::class.java))
     }
 
     fun close() {

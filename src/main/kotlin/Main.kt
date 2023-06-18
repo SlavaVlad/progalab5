@@ -1,8 +1,6 @@
 package app.common
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -17,6 +15,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import app.common.client.Command
 import app.common.client.network.CommandDaoImpl
+import app.common.client.ui.login.loginForm
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.logging.*
@@ -39,17 +38,23 @@ enum class Page(val destination: String) {
 
 fun main(args: Array<String>) {
     arguments = args
-    if (arguments[0] == "-compose") {
+    val compose = true
+    if (compose) {
         application {
             Window(
                 onCloseRequest = ::exitApplication,
-                title = "Compose for Desktop",
-                state = rememberWindowState(width = 300.dp, height = 300.dp)
+                title = "Compose UI lab 8",
+                state = rememberWindowState(width = 1000.dp, height = 1200.dp)
             ) {
-                val page by remember { mutableStateOf("login") }
-                when (page) {
-                    Page.LOGIN.toString() -> {
-
+                val page by remember { mutableStateOf(Page.LOGIN.destination) }
+                Column (modifier = Modifier.fillMaxSize().padding(32.dp)) {
+                    Text(modifier = Modifier.align(Alignment.CenterHorizontally), text = "page: $page")
+                    Column (Modifier.align(Alignment.CenterHorizontally)) {
+                        when (page) {
+                            Page.LOGIN.destination -> {
+                                loginForm()
+                            }
+                        }
                     }
                 }
             }
@@ -66,6 +71,8 @@ suspend fun launchClient() {
                 if (input == "exit") {
                     dao.close()
                     exitProcess(0)
+                } else if (input == "login") {
+                    dao.login()
                 }
                 val formattedArgs = makeInput(input)
                 val command: Command? = Command.make(formattedArgs) { ref ->

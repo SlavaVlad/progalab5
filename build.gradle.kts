@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.com.intellij.openapi.vfs.StandardFileSystems.jar
+import org.gradle.jvm.tasks.Jar
+
 plugins {
     kotlin("jvm") version "1.8.10"
     kotlin("plugin.serialization") version "1.8.10"
@@ -48,6 +51,9 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktor_version")
 
     implementation(compose.desktop.currentOs)
+
+    implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
+    implementation(group = "org.slf4j", name = "slf4j-simple", version = "1.7.25")
 }
 
 tasks.test {
@@ -58,6 +64,22 @@ tasks.test {
 //    kotlinOptions.jvmTarget = "11"
 //}
 
-application {
-    mainClass.set("MainKt")
+//application {
+//    mainClass.set("MainKt")
+//}
+
+val fatJar = task("fatJar", type = Jar::class) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    baseName = "${project.name}-fat"
+    manifest {
+        attributes["Main-Class"] = "app.common.MainKt"
+    }
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    with(tasks.jar.get() as CopySpec)
+}
+
+tasks {
+    "build" {
+        dependsOn(fatJar)
+    }
 }
