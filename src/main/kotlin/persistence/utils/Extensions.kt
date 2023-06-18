@@ -8,10 +8,8 @@ import java.lang.Exception
  */
 inline fun <reified T> Array<T>.takeAfter(index: Int): Array<T> {
     val newArray = ArrayList<T>()
-    this.forEachIndexed { i, element ->
-        if (i > index) {
-            newArray.add(element)
-        }
+    for (i in index until this.size) {
+        newArray.add(this[i])
     }
     return newArray.toTypedArray()
 }
