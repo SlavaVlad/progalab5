@@ -50,6 +50,9 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
 
+    implementation("io.github.alexgladkov:odyssey-core:1.3.1") // For core classes
+    implementation("io.github.alexgladkov:odyssey-compose:1.3.1") // For compose extensions
+
     implementation(compose.desktop.currentOs)
 
     implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
